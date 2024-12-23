@@ -12,6 +12,20 @@
     const defaultArray = doc.getArray(DEFAULT_LIST);
 
     const provider = new IndexeddbPersistence("current", doc);
+    const ws = new WebSocket("http://localhost:5800/");
+
+    ws.addEventListener("open", (e) => {
+        console.log(e);
+    });
+
+    ws.addEventListener("message", (e) => {
+        const dataBlob = e.data as Blob;
+        console.log(e);
+
+        dataBlob.arrayBuffer().then((buffer) => {
+            Y.applyUpdate(doc, new Uint8Array(buffer));
+        });
+    });
 
     provider.on("synced", () => {
         console.log("content from the database is loaded");
@@ -43,10 +57,8 @@
         gift.set("purchased", !Boolean(gift.get("purchased")));
     };
 
-    defaultArray.observeDeep(() => {
-        giftList = defaultArray.toJSON();
-        console.log(giftList);
-    });
+    // TODO: this.
+    doc.on("update", (data) => {});
 </script>
 
 <main>

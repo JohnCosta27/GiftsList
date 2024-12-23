@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "y-indexeddb": "^9.0.12",
+    "y-websocket": "^2.1.0",
     "yjs": "^13.6.21"
   }
 }
