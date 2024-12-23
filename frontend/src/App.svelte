@@ -1,6 +1,7 @@
 <script lang="ts">
     import * as Y from "yjs";
     import { assert } from "./assert";
+    import { IndexeddbPersistence } from "y-indexeddb";
 
     const DEFAULT_LIST = "default";
     const GIFT_INPUT_NAME = "gift-input-name";
@@ -9,6 +10,12 @@
 
     const doc = new Y.Doc();
     const defaultArray = doc.getArray(DEFAULT_LIST);
+
+    const provider = new IndexeddbPersistence("current", doc);
+
+    provider.on("synced", () => {
+        console.log("content from the database is loaded");
+    });
 
     let giftList = $state<Array<{ purchased: boolean; name: string }>>([]);
 
@@ -31,13 +38,14 @@
         defaultArray.push([getYjsItem(gift)]);
     };
 
-    const checkItem = (state: boolean, index: number): void => {
+    const checkItem = (index: number): void => {
         const gift = defaultArray.get(index) as Y.Map<unknown>;
-        gift.set("purchsed", state);
+        gift.set("purchased", !Boolean(gift.get("purchased")));
     };
 
     defaultArray.observeDeep(() => {
         giftList = defaultArray.toJSON();
+        console.log(giftList);
     });
 </script>
 
@@ -47,9 +55,8 @@
             <li>
                 <input
                     type="checkbox"
-                    value={gift.purchased}
-                    onchange={(e) =>
-                        checkItem(Boolean(e.currentTarget.value), index)}
+                    bind:checked={gift.purchased}
+                    onchange={() => checkItem(index)}
                 />
                 {gift.name}
             </li>
